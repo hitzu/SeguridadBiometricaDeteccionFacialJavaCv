@@ -48,7 +48,7 @@
                           <EmptySpace min="-2" pref="51" max="-2" attributes="0"/>
                           <Component id="start" min="-2" pref="123" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="44" max="-2" attributes="0"/>
-                          <Component id="Stop" min="-2" pref="127" max="-2" attributes="0"/>
+                          <Component id="stop" min="-2" pref="127" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace pref="55" max="32767" attributes="0"/>
@@ -63,7 +63,7 @@
                   <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="start" pref="62" max="32767" attributes="0"/>
-                      <Component id="Stop" max="32767" attributes="0"/>
+                      <Component id="stop" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace pref="34" max="32767" attributes="0"/>
               </Group>
@@ -90,11 +90,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Iniciar"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="Stop">
+        <Component class="javax.swing.JButton" name="stop">
           <Properties>
             <Property name="text" type="java.lang.String" value="Detener"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stopActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

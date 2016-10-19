@@ -5,17 +5,74 @@
  */
 package Escritorio;
 
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import javax.imageio.ImageIO;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.highgui.Highgui;
+import org.opencv.highgui.VideoCapture;
+
 /**
  *
  * @author Hitzu
  */
 public class Interfaz extends javax.swing.JFrame {
+    
+    private HiloDemonio miHilo = null;
+    int count = 0;
+    VideoCapture video = null;
+    Mat frame = new Mat();
+    MatOfByte mem = new MatOfByte();
 
     /**
      * Creates new form Interfaz
      */
     public Interfaz() {
         initComponents();
+    }
+    
+    class HiloDemonio implements Runnable
+    {
+        protected volatile boolean runnable = false;
+        
+        @Override
+        public void run()
+        {
+            synchronized(this)
+            {
+                while(runnable)
+                {
+                    if(video.grab())
+                    {
+                        try
+                        {
+                            video.retrieve(frame);
+                            Highgui.imencode(".bmp",frame,mem);
+                            Image im = ImageIO.read(new ByteArrayInputStream(mem.toArray()));
+                            
+                            BufferedImage buff = (BufferedImage) im;
+                            Graphics g = imagen.getGraphics();
+                            
+                            if (g.drawImage(buff, 0, 0, getWidth(), getHeight() -150 , 0, 0, buff.getWidth(), buff.getHeight(), null))
+                                
+                                if(runnable == false)
+                                {
+                                    System.out.println("La camara esta en pausa");
+                                    this.wait();
+                                }
+                        }
+                        catch(Exception e)
+                        {
+                            System.out.println("error: " + e.toString());
+                        }
+                    }   
+                }
+            }
+        }
     }
 
     /**
@@ -30,7 +87,7 @@ public class Interfaz extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         imagen = new javax.swing.JPanel();
         start = new javax.swing.JButton();
-        Stop = new javax.swing.JButton();
+        stop = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -46,8 +103,18 @@ public class Interfaz extends javax.swing.JFrame {
         );
 
         start.setText("Iniciar");
+        start.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startActionPerformed(evt);
+            }
+        });
 
-        Stop.setText("Detener");
+        stop.setText("Detener");
+        stop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -62,7 +129,7 @@ public class Interfaz extends javax.swing.JFrame {
                         .addGap(51, 51, 51)
                         .addComponent(start, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(44, 44, 44)
-                        .addComponent(Stop, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(stop, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(55, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -73,7 +140,7 @@ public class Interfaz extends javax.swing.JFrame {
                 .addGap(38, 38, 38)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(start, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE)
-                    .addComponent(Stop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(stop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(34, Short.MAX_VALUE))
         );
 
@@ -90,6 +157,28 @@ public class Interfaz extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void startActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startActionPerformed
+        // TODO add your handling code here:
+        video = new VideoCapture(0);
+        miHilo = new HiloDemonio();
+        Thread t = new Thread(miHilo);
+        t.setDaemon(true);
+        miHilo.runnable = true;
+        t.start();
+        start.setEnabled(false);
+        stop.setEnabled(true);
+        
+        
+    }//GEN-LAST:event_startActionPerformed
+
+    private void stopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopActionPerformed
+        // TODO add your handling code here:
+        miHilo.runnable = false;
+        stop.setEnabled(false);
+        start.setEnabled(true);
+        video.release();
+    }//GEN-LAST:event_stopActionPerformed
 
     /**
      * @param args the command line arguments
@@ -118,6 +207,7 @@ public class Interfaz extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -127,9 +217,9 @@ public class Interfaz extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Stop;
     private javax.swing.JPanel imagen;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton start;
+    private javax.swing.JButton stop;
     // End of variables declaration//GEN-END:variables
 }
